@@ -1,0 +1,10 @@
+// Zag 模块示例：被 example.zag 通过 @import("mymod.zag") 导入
+// 编译器会把它一并编译为 mymod.zig
+
+pub fn greet() string {
+    return "from mymod"
+}
+
+pub fn add(a: int, b: int) int {
+    return a + b
+}
