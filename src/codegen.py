@@ -783,7 +783,7 @@ class CodeGen:
         """std.print → std.debug.print，按静态类型选择格式符。"""
         specs, vals = [], []
         for a in args:
-            specs.append("{s}" if self.static_type(a) == "string" else "{any}")
+            specs.append("{s}" if self.static_type(a) == "string" else "{}")
             vals.append(self.expr(a))
         fmt = " ".join(specs) + "\\n"
         tuple_str = ".{" + ", ".join(vals) + "}"
