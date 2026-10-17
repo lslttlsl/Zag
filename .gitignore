@@ -1,0 +1,31 @@
+# Zag 编译器生成的 Zig 源码与构建产物
+*.zig
+!syntax/*.zig
+
+# 构建产物
+/target/
+/build/
+*.o
+*.obj
+*.exe
+*.a
+*.so
+*.dylib
+*.dll
+zig-cache/
+.zig-cache/
+zig-out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# 编辑器与系统
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
