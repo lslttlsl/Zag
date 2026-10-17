@@ -1,0 +1,139 @@
+{
+    // @author: Zag Community
+    name: ["Zag", ".zag"]
+    styles: [
+        "todo"          > "default",        @B
+        "character"     > "string",         @B
+        "docComment"    > "namespace"
+        "macro"         > "namespace"
+        "dummy",        #8C8C8C, #808080,   @B
+    ]
+    comment: {startsWith: "//",  addToContains: false}
+    comment: {startsWith: "///", addToContains: false}
+    defines: [
+        "todo": {match: keywordsToRegex("TODO FIXME XXX NOTE"), 0: "todo"}
+        "hexEscapes": /(?:x[a-fA-F\d]{2}|u[a-fA-F\d]{4}|U[a-fA-F\d]{6})/
+    ]
+    contains: [
+        // 注释（暗灰色，不抢眼）
+        {match: "//(?![/!]).*", 0: "comment", 0: {include: "todo"}}
+        {match: "//[/!].*",  0: "docComment", 0: {include: "todo"}}
+        
+        // 运算符（亮蓝色）
+        {match: /\b_\b/, 0: "dummy"}
+        {match: "->|[-+/*=^&?|!<>%~]" 0: "operator"}
+        
+        // 数字（橙色）
+        {number: "2|8|10|16|F|E|P|_"}
+        
+        // 字符（绿色）
+        {
+            match: /b?'(?:[^'\\]|(\\(?:/+include("hexEscapes")+/|.)))'/
+            0: "character"
+            1: "strEscape"
+        }
+        { 
+            match: /(c?\\\\).*/
+            0: "string"
+            1: "strEscape"
+        }
+        
+        // 字符串（黄绿色）
+        { 
+            start: {match: /c?"/}
+            end: {match: /"/}
+            style: "string"
+            contains: [
+                {match: /\\(?:[nrt\\'"]|/+include("hexEscapes")+/)/, 0: "strEscape"}
+                {match: /(?s)\\./, 0: "error"}
+            ]
+        }
+        
+        // ==========================================
+        // Zag 核心字库（高对比度调色版）
+        // ==========================================
+        
+        // 1. 常量与空值（紫红色）
+        {match: keywordsToRegex("true false null undefined unreachable") 0: "constant"}
+        
+        // 2. 变量与声明（亮青色，你的 const? 就在这里，已修正转义）
+        {match: keywordsToRegex("var const const\\? comptime threadlocal") 0: "meta"}
+        
+        // 3. 控制流（粉紫色）
+        {
+            match: keywordsToRegex(
+                "if else switch while for and or orelse"
+                "error fn try pub usingnamespace"
+                "return break continue"
+            )
+            0: "keyword"
+        }
+        
+        // 4. 数据结构（亮红色）
+        {
+            match: keywordsToRegex("struct enum union error packed opaque")
+            0: "keyword2"
+        }
+        
+        // 5. 修饰符与错误捕捉（浅蓝色）
+        {
+            match: keywordsToRegex(
+                "defer errdefer async nosuspend await suspend resume export extern"
+                "catch inline noinline asm callconv noalias"
+            )
+            0: "macro"
+        }
+        
+        // 6. Zag 极简类型（青绿色）
+        {
+            match: keywordsToRegex(
+                "int float bool string void type anytype isize usize"
+            )
+            0: "type"
+        }
+        
+        // 7. Zig 底层类型备用（天蓝色）
+        {
+            match: /\b[iu][1-9]\d*\b|/ + keywordsToRegex(
+                "allowzero anyerror anyframe anyopaque"
+                "c_char c_int c_long c_longdouble c_longlong c_short c_uint"
+                "c_ulong c_ulonglong c_ushort comptime_float comptime_int"
+                "f128 f16 f32 f64 f80 i0 u0 linksection noreturn volatile"
+            )
+            0: "type"
+        }
+        
+        // 8. Zag 标准库（黄金色，极度醒目）
+        {
+            match: keywordsToRegex(
+                "std print alloc free select allocator"
+            )
+            0: "keyword"
+        }
+        
+        // 9. 内建函数（@前缀，紫色，铺满）
+        { 
+            match: /\b(?:align)\b|@/ + keywordsToRegex(
+                "Frame OpaqueType TagType This Type TypeOf Vector abs"
+                "addWithOverflow alignCast alignOf as asyncCall atomicLoad"
+                "atomicRmw atomicStore bitCast bitOffsetOf bitReverse bitSizeOf"
+                "breakpoint byteOffsetOf byteSwap cDefine cImport cInclude"
+                "cUndef call ceil clz cmpxchgStrong cmpxchgWeak compileError"
+                "compileLog constCast cos ctz divExact divFloor divTrunc"
+                "embedFile enumFromInt errorCast errorFromInt errorName"
+                "errorReturnTrace exp exp2 export extern fence field"
+                "fieldParentPtr floatCast floatFromInt floor frame frameAddress"
+                "frameSize hasDecl hasField import inComptime intCast"
+                "intFromBool intFromEnum intFromError intFromFloat intFromPtr"
+                "log log10 log2 max memcpy memset min mod mulAdd mulWithOverflow"
+                "newStackCall offsetOf panic popCount prefetch ptrCast"
+                "ptrFromInt reduce rem returnAddress round select setAlignStack"
+                "setCold setEvalBranchQuota setFloatMode setRuntimeSafety"
+                "shlExact shlWithOverflow shrExact shuffle sin sizeOf splat sqrt"
+                "src subWithOverflow tagName tan trap trunc truncate typeInfo"
+                "typeName unionInit volatileCast wasmMemoryGrow wasmMemorySize"
+            )
+            0: "keyword"
+        }
+    ]
+}
