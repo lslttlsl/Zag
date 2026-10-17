@@ -1,0 +1,380 @@
+// ============================================
+// Zag 17.0 Example — Covers all core language features
+//
+// Compile and run:  python -m src.main examples/example.zag --run
+// Run tests:        python -m src.main examples/example.zag --test
+// View generated Zig: python -m src.main examples/example.zag -o example.zig
+// ============================================
+
+// [1] Imports & Modules (Imports are hoisted to the top)
+const std = @import("std")
+const myModule = @import("mymod.zag") // .zag is automatically compiled to .zig
+
+const builtin = @import("builtin")    // For conditional compilation
+const isWindows = builtin.os.tag == .windows
+
+// [2] Types (Zag's four basic types)
+const num: int = 255
+const pi: float = 3.14
+const flag: bool = true
+const name: string = "Zag"
+
+// [3] Constants
+const PI = 3.14159
+
+// [4] Type Inference
+const n = 42
+
+// [5] C Interop (External declarations and exports)
+extern fn cFunction() void
+export fn exported() void {
+    // This function is visible to C
+}
+
+// [6] Comments
+/// This is a documentation comment
+/* This is
+   a multi-line comment */
+
+// ============================================
+// Entry Point
+// ============================================
+
+pub fn main() !void {
+    std.print("Hello, Zag")
+    std.print(42)
+    std.print("==== Zag Syntax Demo ====")
+
+    basicDemo()
+    operatorDemo()
+    controlDemo()
+    loopDemo()
+    functionDemo()
+    fourPillarsDemo()
+    optionalDemo()
+    errorDemo()
+    try tryDemo()
+    compositeDemo()
+    pointerDemo()
+    try memoryDemo()
+    deferDemo()
+    genericDemo()
+    builtinDemo()
+    importDemo()
+
+    std.print("==== Demo Finished ====")
+}
+
+// ============================================
+// Core Syntax Features
+// ============================================
+
+// [7] Variables and Constants (The "Four Pillars")
+fn basicDemo() void {
+    // const: Immutable; errors if modified, also errors if unused
+    const x = 10
+    std.print(x)
+
+    // var: Mutable; errors if declared but never modified
+    var y = 20
+    y = 21
+    std.print(y)
+
+    // const?: Const-safe — attempts to modify are silently ignored
+    const? z = 30
+    z = 99
+    std.print(z) // Still 30
+
+    // var.: Decl-safe — unused/unmodified are silently ignored, never errors
+    var. a = 40
+}
+
+// [8] Operators
+fn operatorDemo() void {
+    const sum = 1 + 2
+    const diff = 3 - 1
+    const prod = 2 * 3
+    const quot = 6 / 2
+    const rem = 7 % 3
+    const eq = 1 == 1
+    const ne = 1 != 2
+    const lt = 1 < 2
+    const ge = 2 >= 2
+    const le = 2 <= 2
+    const logic = true and false
+    const notExpr = not false
+    
+    std.print(sum)
+    std.print(diff)
+    std.print(prod)
+    std.print(quot)
+    std.print(rem)
+    std.print(eq)
+    std.print(ne)
+    std.print(lt)
+    std.print(ge)
+    std.print(le)
+    std.print(logic)
+    std.print(notExpr)
+}
+
+// [9] Conditionals & [10] Ternary Expressions
+fn controlDemo() void {
+    const x = 7
+
+    if (x > 5) {
+        std.print("big")
+    } else {
+        std.print("small")
+    }
+
+    // Ternary expression (if is an expression in Zag)
+    const result = if (x > 5) "big" else "small"
+    std.print(result)
+
+    // else-if chain, with dangling else on a new line
+    if (x > 100) {
+        std.print("huge")
+    } else if (x > 5) {
+        std.print("big")
+    }
+    else {
+        std.print("small")
+    }
+}
+
+// [11] Loops (Classic C-style)
+fn loopDemo() void {
+    var i = 0
+    while (i < 3) {
+        std.print(i)
+        i++
+    }
+
+    for (var j = 0; j < 3; j++) {
+        std.print(j)
+    }
+}
+
+// [12] Functions
+fn add(a: int, b: int) int {
+    return a + b
+}
+
+fn hello() void {
+    std.print("hello")
+}
+
+fn functionDemo() void {
+    std.print(add(1, 2))
+    hello()
+}
+
+// [13] Focus on the Four Pillars
+fn fourPillarsDemo() void {
+    const c = 1 // const: must be used
+    std.print(c)
+
+    var v = 2 // var: must be modified
+    v = 3
+    std.print(v)
+
+    const? cs = 4 // const?: modification silently ignored
+    cs = 999
+    std.print(cs)
+
+    var. vs = 5 // var.: no restrictions, never errors
+}
+
+// ============================================
+// Advanced Features
+// ============================================
+
+// [14] Optional Types
+fn optionalDemo() void {
+    var maybe: ?int = null
+    maybe = 5
+    if (maybe) |val| {
+        std.print(val)
+    }
+
+    const nothing: ?int = null
+    const fallback = nothing orelse 0
+    std.print(fallback)
+}
+
+// [15] Error Handling & [16] Catch
+const MyError = error{ Bad, Worse }
+
+fn mayFail() !void {
+    return error.Something
+}
+
+fn risky(fail: bool) MyError!int {
+    if (fail) {
+        return error.Worse
+    }
+    return 1
+}
+
+fn errorDemo() void {
+    // catch captures the error, last expression in block is the value
+    const v = risky(false) catch |err| {
+        std.print("error occurred")
+        std.print(@errorName(err))
+        0
+    }
+    std.print(v)
+
+    // Catch a void error
+    mayFail() catch |err| {
+        std.print("failed")
+        std.print(@errorName(err))
+    }
+}
+
+// [17] try (Propagates errors upwards)
+fn tryDemo() !void {
+    const r = try risky(false)
+    std.print(r)
+    std.print("try demo finished")
+}
+
+// [18] Composite Types (Arrays, Slices, Destructuring, Structs, Enums, Unions)
+const Point = struct {
+    x: int,
+    y: int
+}
+
+const Color = enum {
+    red,
+    green,
+    blue
+}
+
+const Value = union {
+    i: int,
+    f: float
+}
+
+fn compositeDemo() void {
+    // Arrays & Slices
+    const arr = [1, 2, 3]
+    const first = arr[0]
+    const len = arr.len
+    std.print(first)
+    std.print(len)
+
+    const slice = arr[0..2]
+    const tail = arr[1..]
+    std.print(slice[0])
+    std.print(tail[0])
+
+    // Destructuring
+    const pointArr = [10, 20]
+    const [px, py] = pointArr
+    std.print(px)
+    std.print(py)
+
+    // Structs
+    const p = Point{ .x = 3, .y = 4 }
+    std.print(p.x)
+    std.print(p.y)
+
+    // Enums
+    const c = Color.green
+    if (c == Color.green) {
+        std.print("green")
+    }
+
+    // Unions
+    const v = Value{ .i = 42 }
+    std.print(v.i)
+}
+
+// [19] Pointers ($ is Zag's dereference operator, replacing Zig's .*)
+fn pointerDemo() void {
+    var numVar: int = 42
+    const ptr = &numVar
+    $ptr = 100
+    std.print(numVar)
+}
+
+// [20] Allocators (The Minimal 3-Step)
+fn memoryDemo() !void {
+    const allocator = std.select("gpa")
+    var. mem = try allocator.allocator(100)
+    allocator.free(mem)
+    std.print("Memory demo finished")
+}
+
+// [21] defer
+fn deferDemo() void {
+    defer {
+        std.print("defer block")
+    }
+    defer std.print("defer single expression")
+    std.print("defer demo")
+}
+
+// [22] Comptime Execution
+comptime {
+    var total: int = 0
+    for (var k = 1; k <= 10; k++) {
+        total = total + k
+    }
+    std.debug.assert(total == 55) // Compile-time assertion
+}
+
+// [23] Generics (comptime parameters)
+fn maxOf(comptime T: type, a: T, b: T) T {
+    if (a > b) {
+        return a
+    }
+    return b
+}
+
+// [24] Inline Functions
+inline fn fastAdd(a: int, b: int) int {
+    return a + b
+}
+
+fn genericDemo() void {
+    std.print(maxOf(int, 3, 7))
+    std.print(fastAdd(2, 3))
+}
+
+// [25] Builtins
+fn builtinDemo() void {
+    const size = @sizeOf(int)
+    const typeName = @typeName(int)
+    std.print(size)
+    std.print(typeName)
+
+    if (isWindows) {
+        std.print("windows")
+    } else {
+        std.print("not windows")
+    }
+}
+
+// [26] Using Imported Modules
+fn importDemo() void {
+    std.print(myModule.greet())
+}
+
+// ============================================
+// Tests
+// ============================================
+
+test "add" {
+    try std.testing.expect(add(1, 2) == 3)
+}
+
+test "maxOf" {
+    try std.testing.expect(maxOf(int, 3, 7) == 7)
+}
+
+test "fastAdd" {
+    try std.testing.expect(fastAdd(2, 3) == 5)
+}
