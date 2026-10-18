@@ -134,7 +134,7 @@ zag/
 ## Implementation Notes
 
 - **Newline as statement terminator**: Zag has no semicolons; a newline is a soft statement terminator. The lexer emits `NEWLINE` tokens, and the parser ignores newlines when the previous token belongs to the "obviously incomplete" set (binary operators, `(`, `,`, etc.), enabling multi-line expressions; `else` may also be written on the following line (dangling else).
-- **Static type inference** (best effort): it infers literal and function-return types to drive `std.print`'s format specifier choice (strings use `{s}`, everything else uses `{any}`) and array literal element types; `pub fn` return types of imported modules are also pre-scanned and registered.
+- **Static type inference** (best effort): it infers literal and function-return types to drive `std.print`'s format specifier choice (strings use `{s}`, everything else uses `{}`) and array literal element types; `pub fn` return types of imported modules are also pre-scanned and registered.
 - **Zig 0.17 adaptation**: every emission strategy is verified against the real compiler, including: local `var` must be explicitly typed (comptime_int restriction), unused captures must be elided (`catch`) or placeholder (`if`'s `|_|`, because the payload performs the unwrap), error-union value blocks must use the `blk: { … break :blk …; }` form, i32 indices require `@intCast`, and a `var` whose address is taken must remain `var` (emitting a self-assignment satisfies Zig's "must be mutated" check), etc.
 
 ## Known Limitations (v1)
